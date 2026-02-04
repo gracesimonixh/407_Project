@@ -51,33 +51,5 @@ class Portfolio:
         for i in range(0, len(tickers)):
             tick = tickers[i]
             new_row.update({tick: self.positions[tick]})
-        new_df = pd.DataFrame(new_row)
-        self.equity_curve = pd.concat([self.equity_curve, new_row], ignore_index=True)
-
-# 1) Create a portfolio
-p = Portfolio(start_cash=10000)
-
-# 2) Simulate some market prices
-prices_day1 = pd.Series({'AAPL': 150, 'SPY': 400})
-
-# 3) Buy some stocks
-p.buy('AAPL', shares=10, price=150, date='2026-02-01')   # Spend 1500
-p.buy('SPY', shares=5, price=400, date='2026-02-01')    # Spend 2000
-
-# 4) Update portfolio value using current prices
-p.update(prices_day1)
-
-# 5) Record equity snapshot
-p.record_equity(date='2026-02-01')
-
-# 6) Print internal state
-print("Cash:", p.cash)
-print("\nPositions:")
-print(p.positions)
-
-print("\nTrades:")
-for t in p.trades:
-    print(t)
-
-print("\nEquity Curve:")
-print(p.equity_curve)
+        new_df = pd.DataFrame([new_row])
+        self.equity_curve = pd.concat([self.equity_curve, new_df], ignore_index=True)
