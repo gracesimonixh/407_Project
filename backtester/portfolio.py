@@ -14,7 +14,7 @@ Variables/notes
 """
 
 
-tickers = ['AAPL', 'SPY']
+tickers = ['AAPL', 'JNJ', 'SPY']
 class Portfolio:
     def __init__(self, start_cash = 10000):
         self.cash = start_cash
