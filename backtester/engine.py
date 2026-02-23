@@ -1,11 +1,13 @@
 from backtester.portfolio import Portfolio
+from backtester.strategies import strategies
 import pandas as pd
 
 class BTE:
-    def __init__(self, portfolio: Portfolio, strategy, data: pd.DataFrame):
+    def __init__(self, portfolio: Portfolio, strategy: strategies, data: pd.DataFrame):
         self.portfolio = portfolio
         self.strategy = strategy
-        self.data = pd.read_csv(data, )
+        self.data = pd.read_csv(data, "data_close_data.csv")
+        self.index = self.data.set_index("Date", inplace=True)
 
     def run_backtest(self):
         """
@@ -20,7 +22,12 @@ class BTE:
             5) Record equity
         Repeats for all time steps 
         """
-        pass
+        for date, row in self.data.iterrows():
+            self.strategy(date)
+            
+
+
+
 
     def update_portfolio(self):
         pass
