@@ -62,9 +62,6 @@ class TrendFollowing:
                 self.signals.append(signal)
                 state['in_position'] = False 
 
-    def get_signals(self): 
-        """Return all generated signals"""
-        return self.signals
-
+        
 class MeanReversion:
     pass
