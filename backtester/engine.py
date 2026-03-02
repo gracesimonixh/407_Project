@@ -19,7 +19,7 @@ class BTE:
         self.alldata = pd.read_csv("Data/clean_stock_data.csv")
         self.data.set_index("Date", inplace=True)
 
-    def run_backtest(self):
+    def run_backtest(self, start_date=None, end_date=None):
         """
         Main simulation loop
         Per time step:
@@ -34,7 +34,15 @@ class BTE:
         """
         if self.portfolio.equity_curve.empty:
             self.portfolio.record_equity(date='START')
-        for date, row in self.data.iterrows():
+
+            data_subset = self.data.copy()
+            if start_date:
+                data_subset = data_subset[data_subset.index >= start_date]
+            if end_date:
+                data_subset = data_subset[data_subset.index <= end_date]
+
+
+        for date, row in data_subset.iterrows():
             for ticker in tickers:
                 close_price = row[ticker]
                 self.strategy.process_day(ticker, close_price)
