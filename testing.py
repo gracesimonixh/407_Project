@@ -1,35 +1,35 @@
-# testing.py - BULLETPROOF VERSION
-# Guaranteed to work + create CSVs in RIGHT location
+# testing.py - BOTH STRATEGIES + MULTI-PERIOD (FINAL VERSION)
 import pandas as pd
 import os
 from pathlib import Path
 from backtester.engine import BTE
 from backtester.portfolio import Portfolio
-from backtester.strategies import TrendFollowing
+from backtester.strategies import TrendFollowing, MeanReversion
 from datetime import datetime
 
-# ✅ FORCE PROJECT ROOT - NO WRONG FOLDER ISSUES
-PROJECT_ROOT = Path.cwd()  # Current working directory
-print(f"🚀 Working in: {PROJECT_ROOT.absolute()}")
+PROJECT_ROOT = Path.cwd()
+print(f"Working in: {PROJECT_ROOT.absolute()}")
 
 def ensure_directories():
-    """Create output folder if missing"""
     output_dir = PROJECT_ROOT / "results"
     output_dir.mkdir(exist_ok=True)
-    print(f"📁 Output folder: {output_dir.absolute()}")
+    print(f"Output folder: {output_dir.absolute()}")
     return output_dir
 
 def safe_csv_save(df, filename, output_dir):
-    """Save CSV with full path + confirmation"""
     filepath = output_dir / filename
     df.to_csv(filepath)
-    print(f"✅ SAVED: {filepath.absolute()}")
+    print(f"SAVED: {filepath.absolute()}")
     return filepath
 
-def run_period_test(start_date, end_date, output_dir):
-    """Single period backtest"""
+def run_strategy_test(strategy_class, strategy_name, start_date, end_date, output_dir):
+    """Test ONE strategy on ONE period"""
     portfolio = Portfolio(start_cash=10000)
-    strategy = TrendFollowing(short_window=5, long_window=20, position_size=10)
+    
+    if strategy_name == "TrendFollowing":
+        strategy = strategy_class(short_window=5, long_window=20, position_size=10)
+    else:  # MeanReversion
+        strategy = strategy_class(mean_window=20, threshold_pct=0.02, position_size=10)
     
     engine = BTE(portfolio=portfolio, strategy=strategy)
     performance = engine.run_backtest(start_date=start_date, end_date=end_date)
@@ -40,6 +40,7 @@ def run_period_test(start_date, end_date, output_dir):
     max_dd = performance['Drawdown'].min() * 100
     
     result = {
+        'strategy': strategy_name,
         'period': f"{start_date or 'start'} to {end_date or 'end'}",
         'days': len(performance)-1,
         'trades': len(portfolio.closed_trades),
@@ -51,69 +52,79 @@ def run_period_test(start_date, end_date, output_dir):
         'portfolio': portfolio
     }
     
-    # SAVE INDIVIDUAL FILES
-    safe_csv_save(result['performance'], f"equity_period_{start_date or 'full'}.csv", output_dir)
+    # Save detailed files
+    safe_csv_save(result['performance'], 
+                 f"{strategy_name}_{start_date or 'full'}_equity.csv", output_dir)
     trades_df = pd.DataFrame(result['portfolio'].closed_trades)
-    safe_csv_save(trades_df, f"trades_period_{start_date or 'full'}.csv", output_dir)
+    safe_csv_save(trades_df, 
+                 f"{strategy_name}_{start_date or 'full'}_trades.csv", output_dir)
     
     return result
 
 def main():
-    print("🔥 BULLETPROOF BACKTESTER - MULTI-PERIOD")
+    print("BOTH STRATEGIES - MULTI-PERIOD BACKTEST")
     print("=" * 70)
     
-    # CHECK DATA EXISTS
     if not (PROJECT_ROOT / "Data/date_close_data.csv").exists():
-        print("❌ ERROR: Data/date_close_data.csv not found!")
-        print("Run from PROJECT ROOT (same level as backtester/ and Data/)")
+        print("ERROR: Data/date_close_data.csv not found!")
         return
     
     data_info = pd.read_csv('Data/date_close_data.csv')
-    print(f"✅ Data found: {len(data_info)} days")
-    print(f"   Range: {data_info['Date'].min()} to {data_info['Date'].max()}")
+    print(f"Data: {len(data_info)} days ({data_info['Date'].min()} to {data_info['Date'].max()})")
     
-    # CREATE OUTPUT FOLDER
     output_dir = ensure_directories()
-    
-    # TEST PERIODS (adjust to your data)
     periods = [
-        (None, None),  # Full period
+        (None, None),           # Full period
         ("2020-01-01", "2020-12-31"),
-        ("2021-01-01", "2021-12-31"), 
-        ("2022-01-01", None),  # 2022 to end
+        ("2021-01-01", "2021-12-31"),
+        ("2022-01-01", None),
     ]
     
-    results = []
+    all_results = []
+    strategies = [
+        (TrendFollowing, "TrendFollowing"),
+        (MeanReversion, "MeanReversion")
+    ]
+    
     print("\n" + "="*70)
+    print("TESTING BOTH STRATEGIES...")
     
-    for i, (start, end) in enumerate(periods):
-        print(f"\n📊 Running period {i+1}/{len(periods)}: {start} to {end}")
-        result = run_period_test(start, end, output_dir)
-        results.append(result)
-        print(f"   Return: {result['total_return_pct']:+6.1f}% | "
-              f"Max DD: {result['max_dd_pct']:5.1f}% | "
-              f"Trades: {result['trades']:3d}")
+    for strategy_class, strategy_name in strategies:
+        print(f"\n{strategy_name}")
+        for i, (start, end) in enumerate(periods):
+            print(f"  Period {i+1}: {start} to {end}", end=" ... ")
+            result = run_strategy_test(strategy_class, strategy_name, start, end, output_dir)
+            all_results.append(result)
+            print(f"{result['total_return_pct']:+5.1f}% ({result['trades']} trades)")
     
-    # SUMMARY TABLE
+
     print("\n" + "="*70)
-    print("📈 RESULTS SUMMARY")
-    results_df = pd.DataFrame(results)
-    print(results_df[['period', 'days', 'trades', 'total_return_pct', 'max_dd_pct', 'sharpe']].round(2))
+    print("COMPARISON - BOTH STRATEGIES")
+    results_df = pd.DataFrame(all_results)
     
-    # FINAL SUMMARY CSV
-    summary_path = safe_csv_save(results_df, "SUMMARY_ALL_PERIODS.csv", output_dir)
+    print(results_df.pivot_table(
+        index='period', 
+        columns='strategy', 
+        values=['total_return_pct', 'trades', 'sharpe'],
+        aggfunc='first'
+    ).round(2))
     
-    # LIST ALL CREATED FILES
-    print("\n" + "="*70)
-    print("🎉 FILES CREATED:")
-    csv_files = list(output_dir.glob("*.csv"))
-    for f in sorted(csv_files):
-        size = f.stat().st_size / 1024  # KB
-        print(f"   📄 {f.name:<30} ({size:5.1f} KB)")
+    # SAVE MASTER SUMMARY
+    safe_csv_save(results_df, "BOTH_STRATEGIES_ALL_PERIODS.csv", output_dir)
     
-    # BEST PERFORMER
-    best = results_df.loc[results_df['total_return_pct'].idxmax()]
-    print(f"\n🏆 BEST: {best['period']:<20} | Return: {best['total_return_pct']:+.1f}%")
+    # BEST OVERALL
+    best_overall = results_df.loc[results_df['total_return_pct'].idxmax()]
+    print(f"\nBest: {best_overall['strategy']} on {best_overall['period']}")
+    print(f"     Return: {best_overall['total_return_pct']:+.1f}% | "
+          f"Sharpe: {best_overall['sharpe']:.2f} | "
+          f"Drawdown: {best_overall['max_dd_pct']:.1f}%")
+    
+    # FILE LISTING
+    print("\nALL FILES CREATED:")
+    csv_files = sorted(output_dir.glob("*.csv"))
+    for f in csv_files:
+        size = f.stat().st_size / 1024
+        print(f"{f.name:<35} ({size:4.1f} KB)")
 
 if __name__ == "__main__":
     main()
