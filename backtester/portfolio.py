@@ -18,9 +18,9 @@ tickers = ['AAPL', 'JNJ', 'SPY']
 class Portfolio:
     def __init__(self, start_cash = 10000):
         self.cash = start_cash
-        self.positions = pd.Series(0, index=tickers)
+        self.positions = pd.Series(0, index=tickers, dtype=float)
         self.portfolio_value = start_cash
-        self.equity_curve = pd.DataFrame(columns=['Cash', 'Portfolio_Value'] + tickers)
+        self.equity_curve = pd.DataFrame(columns=['Cash', 'Portfolio_value'] + tickers)
         self.trades = []
         self.closed_trades = []
         self.open_positions = {}
@@ -60,7 +60,7 @@ class Portfolio:
 
         if self.positions[ticker] == 0 and ticker in self.open_positions:
             entry = self.open_positions.pop(ticker)
-            pnl = (price - entry["entry_price"]) * entry[shares]
+            pnl = (price - entry["entry_price"]) * entry["shares"]
             self.closed_trades.append({ "ticker": ticker,
                                         "entry_date": entry["entry_date"],
                                         "exit_date": date,
@@ -70,13 +70,24 @@ class Portfolio:
                                         "pnl": pnl})
 
     def update(self, current_prices):
-        holdings_val = (self.positions * current_prices).sum()
+        holdings_val = (self.positions * current_prices[tickers]).sum()
         self.portfolio_value = self.cash + holdings_val
     
     def record_equity(self, date):
         #append "snapshot" of cash, positions, portfolio_value to equity curve
-        new_row = {'Cash': self.cash,
-                   'Portfolio_value': self.portfolio_value}
+
+        for col in ['Portfolio_value', 'Cash'] + tickers:
+            if col not in self.equity_curve.columns:
+                self.equity_curve[col] = 0
+
+        new_row = pd.DataFrame({'Cash': [self.cash],
+                   'Portfolio_value': [self.portfolio_value]})
         for tick in tickers:
             new_row[tick] = self.positions[tick]
-        self.equity_curve.loc[date] = new_row
+
+        new_row.index = [date]
+        if self.equity_curve.empty:
+            self.equity_curve = new_row
+        else:
+            self.equity_curve = pd.concat([self.equity_curve, new_row])
+        
