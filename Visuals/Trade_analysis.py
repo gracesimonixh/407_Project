@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 def tradeAnalysis():
-    fig = make_subplots(rows=2, cols=2, subplot_titles=("Trade Outcome: Trend Following", "Trade Outcome: Mean Reversion"), 
+    fig = make_subplots(rows=2, cols=2, subplot_titles=("Trend Following", "Mean Reversion"), 
                         specs=[[{"type": "pie"}, {"type": "pie"}],
                                 [{"type": "bar"}, {"type": "bar"}]], vertical_spacing=0.05)
     
@@ -26,13 +26,13 @@ def tradeAnalysis():
     loss_return2 = abs(df2[df2['Result']=='Loss']['pnl'].sum())
 
 
-    fig.add_trace(go.Pie(labels=labels1, values=values1, name="Trend Following", marker=dict(colors=["#f67280", "#5d608d"])), row=1, col=1)
-    fig.add_trace(go.Pie(labels=labels2, values=values2, name="Mean Reversion", marker=dict(colors=["#f67280", "#5d608d"])), row=1, col=2)
+    fig.add_trace(go.Pie(labels=labels1, values=values1, name="Trend Following", marker=dict(colors=["#d65f4d", "#670020"])), row=1, col=1)
+    fig.add_trace(go.Pie(labels=labels2, values=values2, name="Mean Reversion", marker=dict(colors=["#d65f4d", "#670020"])), row=1, col=2)
     
-    fig.add_trace(go.Bar(x=['Wins', 'Losses'], y=[win_return1, loss_return1], name="Trend Following", marker=dict(color=["#f67280", "#5d608d"])), row=2, col=1)
-    fig.add_trace(go.Bar(x=['Wins', 'Losses'], y=[win_return2, loss_return2], name="Mean Reversion", marker=dict(color=["#f67280", "#5d608d"])), row=2, col=2)
+    fig.add_trace(go.Bar(x=['Wins', 'Losses'], y=[win_return1, loss_return1], name="Trend Following", marker=dict(color=["#d65f4d", "#670020"]), text=[f"${win_return1:.0f}", f"${loss_return1:.0f}"], textposition="inside"), row=2, col=1)
+    fig.add_trace(go.Bar(x=['Wins', 'Losses'], y=[win_return2, loss_return2], name="Mean Reversion", marker=dict(color=["#d65f4d", "#670020"]), text=[f"${win_return2:.0f}", f"${loss_return2:.0f}"], textposition="inside"), row=2, col=2)
 
-    fig.update_layout(height=500, showlegend=False, title={'text':"Trade Anlysis", 'x':0.5, 'xanchor': 'center', 'y': 0.95}, margin=dict(t=100, b=40, l=40, r=40))
+    fig.update_layout(height=650, showlegend=False, title={'text':"Trade Analysis", 'x':0.5, 'xanchor': 'center', 'y': 0.95}, margin=dict(t=100, b=40, l=40, r=40))
     fig.update_traces(textposition='inside', textinfo='percent+label', selector=dict(type='pie'))
     fig.show()
 
