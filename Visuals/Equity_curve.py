@@ -6,8 +6,8 @@ to day basis
 import pandas as pd
 import plotly.express as px
 
-mr = pd.read_csv("results\MeanReversion_full_equity.csv", parse_dates=[0], index_col=0)
-tf = pd.read_csv("results\TrendFollowing_full_equity.csv", parse_dates=[0], index_col=0)
+mr = pd.read_csv("results/MeanReversion_full_equity.csv", parse_dates=[0], index_col=0)
+tf = pd.read_csv("results/TrendFollowing_full_equity.csv", parse_dates=[0], index_col=0)
 
 mr.index.name = "Date"
 tf.index.name = "Date"
