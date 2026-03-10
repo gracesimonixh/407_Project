@@ -8,34 +8,44 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-mr = pd.read_csv("results/MeanReversion_full_equity.csv", parse_dates=['Date'], index_col='Date')
-tf = pd.read_csv("results/TrendFollowing_full_equity.csv", parse_dates=['Date'], index_col='Date')
+tf = pd.read_csv("results/TrendFollowing_full_equity.csv", index_col=0)
+mr = pd.read_csv("results/MeanReversion_full_equity.csv", index_col=0)
+tf.index = pd.to_datetime(tf.index, errors='coerce')
+mr.index = pd.to_datetime(mr.index, errors='coerce')
 
-mr.index.name = "Date"
-tf.index.name = "Date"
+equity_min = min(tf['Portfolio_value'].min(), mr['Portfolio_value'].min()) * 0.95
+equity_max = max(tf['Portfolio_value'].max(), mr['Portfolio_value'].max()) * 1.05
+dd_min = min(tf['Drawdown'].min(), mr['Drawdown'].min()) * 1.1
 
-df = pd.concat([mr["Portfolio_value"], tf["Portfolio_value"]], axis=1).dropna()
-df.columns = ["Mean Reversion", "Trend Following"]
+fig = make_subplots(specs=[[{"secondary_y": True}]])
+fig.add_trace(go.Scatter(x=tf.index, y=tf['Portfolio_value'], 
+                        name='Trend Following Equity', 
+                        line=dict(color="#5f1c1c", width=3)), 
+              secondary_y=False)
+fig.add_trace(go.Scatter(x=tf.index, y=tf['Drawdown'], 
+                        name='Trend Following DD', 
+                        line=dict(color="#a45454", width=1),
+                        fill='tozeroy', fillcolor='rgba(164,84,84,0.3)'), 
+              secondary_y=True)
 
-df = df / df.iloc[0] * 100
 
-df_long = df.reset_index().melt(id_vars="Date", var_name="Strategy", value_name="Equity")
-
-fig = px.line(df_long, x="Date", y="Equity", color="Strategy", title="Equity Curve Comparison", template="plotly_white")
-
-#fig = make_subplots(rows=2, cols=1, subplot_titles=('Equity Curves', 'Drawdowns'), shared_xaxes=True)
-#fig.add_trace(go.Scatter(x=tf.index, y=tf['Portfolio_value'], name='Trend Folowing', line=dict(color='#f67280', width=3)), row=1, col=1)
-#fig.add_trace(go.Scatter(x=mr.index, y=mr['Portfolio_value'], name='Mean Reversion', line=dict(color='#5d608d', width=3)), row=1, col=1)
-
-#fig.add_trace(go.Scatter(x=tf.index, y=tf['Drawdown'], name='Trend DD', line=dict(color='#f67280', dash='dash'), fill='tozeroy', fillcolor='rgba(246, 114, 128,0.3)'),row=2, col=1)
-#fig.add_trace(go.Scatter(x=mr.index, y=mr['Drawdown'], name='Mean Rev DD', line=dict(color='#f67280', dash='dot'), fill='tozeroy', fillcolor='rgba(93, 96, 141,0.3)'),row=2, col=1)
-
-#fig.update_yaxes(title_text='Portfolio Value $', row=1, col=1)
-#fig.update_yaxes(title_text="Drawdown %", row=2, col=1)
-#fig.update_xaxes(title_text='Date')
-
-#fig.update_layout(height = 600, title_text="strat comp", title_x=0.5, hovermode='x unified', showlegend=True)
-
-fig.update_layout(hovermode="x unified", yaxis_title="Growth of $100")
+fig.update_yaxes(title_text="Equity $", secondary_y=False, range=[equity_min, equity_max], side="left")
+fig.update_yaxes(title_text="Drawdown %", secondary_y=True, range=[dd_min, 0], side="right", showgrid=False)
+fig.update_xaxes(title_text="Date")
+fig.update_layout(
+    height=600,  
+    title="Equity Curves w/ Drawdown Overlay",
+    hovermode='x unified',
+    showlegend=True,
+    legend=dict(
+        orientation="h", 
+        yanchor="bottom", 
+        y=-0.3,     
+        xanchor="center",
+        x=0.5,    
+        bgcolor="rgba(255,255,255,0.9)"
+    )
+)
 
 fig.show()
+
