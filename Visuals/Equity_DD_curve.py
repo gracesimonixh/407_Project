@@ -4,7 +4,6 @@ growth of the strategy from the inital capital on a day
 to day basis
 """
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
@@ -20,7 +19,7 @@ dd_min = min(tf['Drawdown'].min(), mr['Drawdown'].min()) * 1.1
 fig = make_subplots(specs=[[{"secondary_y": True}]])
 fig.add_trace(go.Scatter(x=tf.index, y=tf['Portfolio_value'], 
                         name='Trend Following Equity', 
-                        line=dict(color="#5f1c1c", width=3)), 
+                        line=dict(color="#5f1c1c", width=2.5)), 
               secondary_y=False)
 fig.add_trace(go.Scatter(x=tf.index, y=tf['Drawdown'], 
                         name='Trend Following DD', 
@@ -28,6 +27,15 @@ fig.add_trace(go.Scatter(x=tf.index, y=tf['Drawdown'],
                         fill='tozeroy', fillcolor='rgba(164,84,84,0.3)'), 
               secondary_y=True)
 
+fig.add_trace(go.Scatter(x=mr.index, y=mr['Portfolio_value'], 
+                        name='Mean Reversion Equity', 
+                        line=dict(color="#08244f", width=2.5)),
+              secondary_y=False)
+fig.add_trace(go.Scatter(x=mr.index, y=mr['Drawdown'], 
+                        name='Mean Reversion DD', 
+                        line=dict(color='#7db2e6', width=1),
+                        fill='tozeroy', fillcolor='rgba(125,178,230,0.3)'), 
+              secondary_y=True)
 
 fig.update_yaxes(title_text="Equity $", secondary_y=False, range=[equity_min, equity_max], side="left")
 fig.update_yaxes(title_text="Drawdown %", secondary_y=True, range=[dd_min, 0], side="right", showgrid=False)
@@ -43,7 +51,7 @@ fig.update_layout(
         y=-0.3,     
         xanchor="center",
         x=0.5,    
-        bgcolor="rgba(255,255,255,0.9)"
+        bgcolor="rgba(255,255,255,0.8)"
     )
 )
 
