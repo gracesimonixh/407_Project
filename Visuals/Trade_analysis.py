@@ -26,11 +26,11 @@ def tradeAnalysis():
     loss_return2 = abs(df2[df2['Result']=='Loss']['pnl'].sum())
 
 
-    fig.add_trace(go.Pie(labels=labels1, values=values1, name="Trend Following", marker=dict(colors=["#d65f4d", "#670020"])), row=1, col=1)
-    fig.add_trace(go.Pie(labels=labels2, values=values2, name="Mean Reversion", marker=dict(colors=["#d65f4d", "#670020"])), row=1, col=2)
+    fig.add_trace(go.Pie(labels=labels1, values=values1, name="Trend Following", marker=dict(colors=["#a45454", "#5f1c1c"])), row=1, col=1)
+    fig.add_trace(go.Pie(labels=labels2, values=values2, name="Mean Reversion", marker=dict(colors=["#7db2e6", "#08244f"])), row=1, col=2)
     
-    fig.add_trace(go.Bar(x=['Wins', 'Losses'], y=[win_return1, loss_return1], name="Trend Following", marker=dict(color=["#d65f4d", "#670020"]), text=[f"${win_return1:.0f}", f"${loss_return1:.0f}"], textposition="inside"), row=2, col=1)
-    fig.add_trace(go.Bar(x=['Wins', 'Losses'], y=[win_return2, loss_return2], name="Mean Reversion", marker=dict(color=["#d65f4d", "#670020"]), text=[f"${win_return2:.0f}", f"${loss_return2:.0f}"], textposition="inside"), row=2, col=2)
+    fig.add_trace(go.Bar(x=['Wins', 'Losses'], y=[win_return1, loss_return1], name="Trend Following", marker=dict(color=["#a45454", "#5f1c1c"]), text=[f"${win_return1:.0f}", f"${loss_return1:.0f}"], textposition="inside"), row=2, col=1)
+    fig.add_trace(go.Bar(x=['Wins', 'Losses'], y=[win_return2, loss_return2], name="Mean Reversion", marker=dict(color=["#7db2e6", "#08244f"]), text=[f"${win_return2:.0f}", f"${loss_return2:.0f}"], textposition="inside"), row=2, col=2)
 
     fig.update_layout(height=650, showlegend=False, title={'text':"Trade Analysis", 'x':0.5, 'xanchor': 'center', 'y': 0.95}, margin=dict(t=100, b=40, l=40, r=40))
     fig.update_traces(textposition='inside', textinfo='percent+label', selector=dict(type='pie'))
