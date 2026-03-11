@@ -5,7 +5,13 @@ Python backtesting engine for simulating trades based on historical stock data. 
 
 
 ## Features
-- 
+- Backtests trading strategies using hisrotical stock price data 
+- Modular strategy framework. for easily adding new strategies
+- Portfolio simulation that tracks positions and capital over time 
+- trade execution logging during simulations 
+- Equity curver tracking for evaluation portfolio performance 
+- Visualization tools
+- Parameterized strategies for experimentation and tuning
 
 ## Strategies
 
