@@ -1,7 +1,8 @@
-import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from pathlib import Path
+
 
 def tradeAnalysis():
     fig = make_subplots(rows=2, cols=2, subplot_titles=("Trend Following", "Mean Reversion"), 
@@ -34,6 +35,7 @@ def tradeAnalysis():
 
     fig.update_layout(height=650, showlegend=False, title={'text':"Trade Analysis", 'x':0.5, 'xanchor': 'center', 'y': 0.95}, margin=dict(t=100, b=40, l=40, r=40))
     fig.update_traces(textposition='inside', textinfo='percent+label', selector=dict(type='pie'))
+    fig.update_layout(template='plotly_dark')
     fig.show()
 
 tradeAnalysis()

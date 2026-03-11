@@ -51,9 +51,10 @@ fig.update_layout(
         y=-0.3,     
         xanchor="center",
         x=0.5,    
-        bgcolor="rgba(255,255,255,0.8)"
+        bgcolor="rgba(0,0,0,.5)"
     )
 )
+fig.update_layout(template='plotly_dark')
 
 fig.show()
 
