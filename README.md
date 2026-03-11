@@ -27,14 +27,17 @@ A strategy that attempts to profit from sustained price movements
 A strategy based on the idea that prices tend to return to their average over time
 
 - **Idea:** If the price moves too far from its average, it will eventually move back
-- **Buy:** When price drops significantly below the average
-- **Sell/Short:** When price rises significantly above the average 
+- **Buy:** When the price drops significantly below the average
+- **Sell/Short:** When the price rises significantly above the average 
 - **Exit:** When price returns toward the average or a stop loss is triggered
 
 
 ## Installation
-
+1) Open Command Palette
+2) Type "Python: Create Environment"
+3) Select venv
 ```bash
 pip install pandas
+pip install plotly
 ```
 
