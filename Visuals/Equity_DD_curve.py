@@ -48,13 +48,14 @@ fig.update_layout(
     legend=dict(
         orientation="h", 
         yanchor="bottom", 
-        y=-0.3,     
+        y=-0.9,     
         xanchor="center",
         x=0.5,    
         bgcolor="rgba(0,0,0,.5)"
-    )
+    ), margin=dict(b=200, pad=10)
 )
 fig.update_layout(template='plotly_dark')
+fig.update_layout(xaxis=dict(rangeslider=dict(visible=True), type="date"))
 
 fig.show()
 
