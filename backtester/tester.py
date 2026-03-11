@@ -112,14 +112,12 @@ def main():
     # SAVE MASTER SUMMARY
     safe_csv_save(results_df, "BOTH_STRATEGIES_ALL_PERIODS.csv", output_dir)
     
-    # BEST OVERALL
     best_overall = results_df.loc[results_df['total_return_pct'].idxmax()]
     print(f"\nBest: {best_overall['strategy']} on {best_overall['period']}")
     print(f"     Return: {best_overall['total_return_pct']:+.1f}% | "
           f"Sharpe: {best_overall['sharpe']:.2f} | "
           f"Drawdown: {best_overall['max_dd_pct']:.1f}%")
     
-    # FILE LISTING
     print("\nALL FILES CREATED:")
     csv_files = sorted(output_dir.glob("*.csv"))
     for f in csv_files:
